@@ -1,3 +1,6 @@
+from warnings import filters
+
+from api.filters import EmployeeFilter
 from blogs.models import Blog, Comment
 from blogs.serializers import BlogSerilizer, CommentSerilizer
 from employees.models import Employee
@@ -11,6 +14,8 @@ from django.http import Http404
 from rest_framework import mixins, generics, viewsets
 from django.shortcuts import get_object_or_404
 from .pagination import CustomePagination
+from django_filters import rest_framework as filters
+from rest_framework.filters import SearchFilter, OrderingFilter 
 
 @api_view(['GET', 'POST'])
 def studentViews(request):
@@ -172,12 +177,19 @@ def studentDetailView(request, pk):
 class EmployeesViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerilizer
-    pagination_class = CustomePagination
+    #pagination_class = CustomePagination
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = EmployeeFilter
+    #filterset_fields = ['designation']
 
 
 class BlogsViews(generics.ListCreateAPIView):
     queryset = Blog.objects.all()
     serializer_class = BlogSerilizer
+    #filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['blog_title', 'blog_body']
+    ordering_fields = ['blog_title']
 
 
 class CommentsViews(generics.ListCreateAPIView):
